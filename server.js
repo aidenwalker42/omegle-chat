@@ -70,7 +70,7 @@ io.sockets.on("connection", (socket) => {
     searchForRoom(room)
       ? waitingRooms.splice(waitingRooms.indexOf(room), 1)
       : fullRooms.splice(fullRooms.indexOf(room), 1);
-    io.sockets.in(room).emit("message", "User DC");
+    io.sockets.in(room).emit("server message", "User DC");
     io.sockets.in(room).emit("user left");
     socket.leave(room);
   });
