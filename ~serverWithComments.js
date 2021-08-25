@@ -23,11 +23,14 @@ let oc = 0;
 
 io.sockets.on("connection", (socket) => {
   let room;
+  console.log("User Connected: " + socket.id);
   oc++;
   io.emit("oc", oc);
   socket.on("leave room", () => {
+    console.log("b");
     socket.leave(room);
-    room = "lmao";
+    room = "FUCKER";
+    console.log("LEFT THE ROOM");
     socket.emit("dumb fix");
   });
   socket.on("room", (condition) => {
@@ -36,14 +39,19 @@ io.sockets.on("connection", (socket) => {
       searchForRoom(room)
         ? waitingRooms.splice(waitingRooms.indexOf(room), 1)
         : fullRooms.splice(fullRooms.indexOf(room), 1);
+      console.log("a");
       socket.broadcast.to(room).emit("user left");
+      console.log("a+");
       socket.leave(room);
+      console.log("aa");
     }
     if (waitingRooms.length === 0) {
       //if no one in waiting room then the room is equal to their socket id
       room = socket.id + "ROOM";
       waitingRooms.push(room); //and we push the socket id to the waiting array
+      console.log("CULPRIT===== " + socket.id);
       socket.join(room); //join the room
+      console.log(waitingRooms, fullRooms);
       io.sockets
         .in(room)
         .emit("server message", "Waiting for a user to join...");
@@ -58,6 +66,10 @@ io.sockets.on("connection", (socket) => {
       socket.emit("error", "error joining room");
       return;
     }
+    // console.log("User: " + socket.id);
+    // console.log("Joining: " + room);
+    console.log("Waiting: [" + waitingRooms + "]");
+    console.log("Full: [" + fullRooms + "]");
   });
   socket.on("message", (msg) => {
     if (room) {
@@ -73,6 +85,10 @@ io.sockets.on("connection", (socket) => {
     io.sockets.in(room).emit("message", "User DC");
     io.sockets.in(room).emit("user left");
     socket.leave(room);
+
+    console.log("User left: " + socket.id);
+    console.log("Waiting: [" + waitingRooms + "]");
+    console.log("Full: [" + fullRooms + "]");
   });
 });
 
