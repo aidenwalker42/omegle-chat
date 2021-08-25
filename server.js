@@ -19,26 +19,38 @@ server.listen(port, () => {
 
 let waitingRooms = [];
 let fullRooms = [];
+let oc = 0;
 
 io.sockets.on("connection", (socket) => {
   let room;
   console.log("User Connected: " + socket.id);
-  socket.on("room", () => {
+  oc++;
+  io.emit("oc", oc)
+  socket.on("room", (condition) => {
+    if(condition){
+      socket.broadcast.to(room).emit("message", "User DC");
+      socket.broadcast.to(room).emit("user left");
+      searchForRoom(room)
+      ? waitingRooms.splice(waitingRooms.indexOf(room), 1)
+      : fullRooms.splice(fullRooms.indexOf(room), 1);
+    }
     if (waitingRooms.length === 0) {
       //if no one in waiting room then the room is equal to their socket id
-      room = socket.id;
+      room = socket.id + "ROOM";
       waitingRooms.push(room); //and we push the socket id to the waiting array
+      socket.join(room); //join the room
+      io.sockets.in(room).emit("server message", "Waiting for a user to join...");
     } else if (waitingRooms.length === 1) {
       //else the room is the person in the waiting room
       room = waitingRooms[0];
       fullRooms.push(waitingRooms[0]); //and we add the waiting room to the full rooms array
       waitingRooms.splice(0, 1); //and remove from waiting room array
+      socket.join(room);
+      io.sockets.in(room).emit("server message", "User is connected, say hi!");
     } else {
       socket.emit("error", "error joining room");
       return;
     }
-    socket.join(room); //join the room
-    io.sockets.in(room).emit("message", "Joined: " + room);
     console.log("User: " + socket.id);
     console.log("Joining: " + room);
     console.log("Waiting: [" + waitingRooms + "]");
@@ -50,6 +62,8 @@ io.sockets.on("connection", (socket) => {
     }
   });
   socket.on("disconnect", () => {
+    oc--;
+    io.emit("oc", oc);
     searchForRoom(room)
       ? waitingRooms.splice(waitingRooms.indexOf(room), 1)
       : fullRooms.splice(fullRooms.indexOf(room), 1);
