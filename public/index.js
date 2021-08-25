@@ -1,4 +1,4 @@
-const socket = io.connect("ws://localhost:5500");
+const socket = io.connect();
 let form = document.getElementById("form");
 let input = document.getElementById("input");
 let theMessages = document.getElementById("messages");
