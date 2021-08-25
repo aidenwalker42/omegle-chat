@@ -32,7 +32,7 @@ io.sockets.on("connection", (socket) => {
   });
   socket.on("room", (condition) => {
     if (condition) {
-      socket.broadcast.to(room).emit("message", "User DC");
+      socket.broadcast.to(room).emit("server message", "User Disconnected");
       searchForRoom(room)
         ? waitingRooms.splice(waitingRooms.indexOf(room), 1)
         : fullRooms.splice(fullRooms.indexOf(room), 1);
