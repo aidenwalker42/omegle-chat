@@ -33,6 +33,7 @@ io.sockets.on("connection", (socket) => {
       searchForRoom(room)
       ? waitingRooms.splice(waitingRooms.indexOf(room), 1)
       : fullRooms.splice(fullRooms.indexOf(room), 1);
+      socket.leave(room)
     }
     if (waitingRooms.length === 0) {
       //if no one in waiting room then the room is equal to their socket id
@@ -51,8 +52,8 @@ io.sockets.on("connection", (socket) => {
       socket.emit("error", "error joining room");
       return;
     }
-    console.log("User: " + socket.id);
-    console.log("Joining: " + room);
+    // console.log("User: " + socket.id);
+    // console.log("Joining: " + room);
     console.log("Waiting: [" + waitingRooms + "]");
     console.log("Full: [" + fullRooms + "]");
   });
@@ -69,10 +70,16 @@ io.sockets.on("connection", (socket) => {
       : fullRooms.splice(fullRooms.indexOf(room), 1);
     io.sockets.in(room).emit("message", "User DC");
     io.sockets.in(room).emit("user left");
+    socket.leave(room)
+
     console.log("User left: " + socket.id);
     console.log("Waiting: [" + waitingRooms + "]");
     console.log("Full: [" + fullRooms + "]");
   });
+  socket.on("leave room", () => {
+    socket.leave(room);
+    console.log("LEFT THE ROOM")
+  })
 });
 
 function searchForRoom(theRoom) {

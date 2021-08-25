@@ -1,4 +1,4 @@
-const socket = io.connect();
+const socket = io.connect("ws://localhost:5500");
 let form = document.getElementById("form");
 let input = document.getElementById("input");
 let theMessages = document.getElementById("messages")
@@ -64,4 +64,6 @@ socket.on("error", (msg) => {
 
 socket.on("user left", () => {
   room = false;
+  socket.emit("leave room")
+  console.log("disconnected because other user went to a new room")
 });
